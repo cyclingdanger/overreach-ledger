@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Overreach Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Source+Sans+3:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #EDE5D0;
+    --card: #F7F1E3;
+    --ink: #2B2419;
+    --ink-soft: #5B5040;
+    --rule: #C9BB9C;
+    --rust: #A8412C;
+    --rust-dark: #7E2F20;
+    --teal: #3F5B52;
+    --gold: #B1832A;
+    --focus: #2B4C6F;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Sans 3', sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(rgba(43,36,25,0.035) 1px, transparent 1px);
+    background-size: 3px 3px;
+    z-index: 0;
+  }
+
+  a { color: var(--rust-dark); }
+  a:hover { color: var(--rust); }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .wrap{
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ---------- Masthead ---------- */
+  header.masthead{
+    border-bottom: 3px double var(--ink);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+  .masthead-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
+    margin: 0;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .masthead-meta{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    text-align: right;
+  }
+  .masthead-sub{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    max-width: 62ch;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+  @media (max-width: 780px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Sidebar / control drawer ---------- */
+  .drawer{
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 22px;
+    position: sticky;
+    top: 24px;
+  }
+  @media (max-width: 780px){ .drawer{ position: static; } }
+
+  .drawer h2{
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin: 0 0 4px;
+  }
+  .field{ margin-bottom: 22px; }
+  .field label{
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  select#stateSelect{
+    width: 100%;
+    padding: 10px 12px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.95rem;
+    background: var(--paper);
+    border: 1px solid var(--ink-soft);
+    color: var(--ink);
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+
+  .period-row{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .period-btn{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    padding: 10px 4px;
+    background: var(--paper);
+    border: 1px solid var(--ink-soft);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .period-btn:hover{ border-color: var(--rust); }
+  .period-btn[aria-pressed="true"]{
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .scan-btn{
+    width: 100%;
+    padding: 13px 10px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.02rem;
+    background: var(--rust);
+    color: var(--paper);
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  .scan-btn:hover:not(:disabled){ background: var(--rust-dark); }
+  .scan-btn:disabled{ background: var(--ink-soft); cursor: default; }
+
+  .drawer-foot{
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+  .clear-link{
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 8px;
+    display: inline-block;
+  }
+  .clear-link:hover{ color: var(--rust); }
+
+  /* ---------- Main log ---------- */
+  .log-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .log-header h2{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin: 0;
+  }
+  .tally{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  .status-line{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+    min-height: 1.2em;
+  }
+  .status-line.error{ color: var(--rust-dark); }
+
+  .empty-state{
+    border: 1px dashed var(--rule);
+    padding: 40px 28px;
+    text-align: left;
+    color: var(--ink-soft);
+  }
+  .empty-state p{ margin: 0 0 10px; }
+  .empty-state .big{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+
+  .entries{ display: flex; flex-direction: column; }
+  .entry{
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--rust);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .entry-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .entry-date{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--teal);
+    border: 1px solid var(--teal);
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+  .entry-state{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+  .entry-title{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.18rem;
+    line-height: 1.3;
+    margin: 0 0 6px;
+  }
+  .entry-title a{ text-decoration: none; }
+  .entry-title a:hover{ text-decoration: underline; }
+  .entry-source{
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .entry-summary{
+    font-size: 0.97rem;
+    max-width: 72ch;
+  }
+
+  footer.note{
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    max-width: 72ch;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="masthead-top">
+      <h1>The Overreach Ledger</h1>
+      <div class="masthead-meta" id="lastScanMeta">no scan run yet</div>
+    </div>
+    <p class="masthead-sub">A running record of American common sense in retreat — real, current news of rules, regulations, and busybodies eating away at ordinary freedoms.</p>
+  </header>
+
+  <div class="layout">
+
+    <aside class="drawer">
+      <h2>run a scan</h2>
+
+      <div class="field">
+        <label for="stateSelect">State</label>
+        <select id="stateSelect">
+          <option value="ALL">All states</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label id="periodLabel">Time period</label>
+        <div class="period-row" role="group" aria-labelledby="periodLabel">
+          <button type="button" class="period-btn" data-days="1" aria-pressed="false">1 day</button>
+          <button type="button" class="period-btn" data-days="5" aria-pressed="true">5 days</button>
+          <button type="button" class="period-btn" data-days="10" aria-pressed="false">10 days</button>
+          <button type="button" class="period-btn" data-days="30" aria-pressed="false">30 days</button>
+          <button type="button" class="period-btn" data-days="365" aria-pressed="false">1 year</button>
+        </div>
+      </div>
+
+      <button type="button" class="scan-btn" id="scanBtn">Run scan</button>
+
+      <div class="drawer-foot">
+        Each scan runs several topic searches against Google News, one after another — free, no account, no API key — so it takes a few seconds longer but finds a lot more. New finds get added to the log below.
+        <br>
+        <button type="button" class="clear-link" id="clearBtn">Clear the log</button>
+      </div>
+    </aside>
+
+    <main>
+      <div class="log-header">
+        <h2>Log</h2>
+        <div class="tally" id="tally">0 cases logged</div>
+      </div>
+
+      <div class="status-line" id="statusLine"></div>
+
+      <div id="entriesContainer">
+        <div class="empty-state" id="emptyState">
+          <p class="big">No entries yet.</p>
+          <p>Pick a state and a time window on the left, then run a scan. Results land here, newest first, and stay logged for this session so repeat scans build up a running record.</p>
+        </div>
+      </div>
+
+      <div class="entries" id="entries"></div>
+    </main>
+
+  </div>
+
+  <footer class="note">
+    Results come straight from Google News search, filtered to your state and time window — this page doesn't use any paid API and doesn't invent stories. Headlines are matched by keyword, not read for meaning, so occasional off-target results are normal; skim before treating anything as a confirmed case. Google News's free search leans toward recent, prominent coverage rather than acting as a complete historical archive, so even a "1 year" scan will mostly surface currently-findable stories, not every matching story ever published — treat the count as "what's findable right now," not a census. Very recent windows (like 1 day) sometimes return little for the same reason. State filtering only works precisely for stories found during a scan run with that state selected — stories found under "All states" are tagged generically and won't reappear if you switch to a specific state later. Your log is saved in this browser once the page is hosted on its own; it won't carry over to a different browser or device.
+  </footer>
+
+</div>
+
+<script>
+  const STATES = [
+    ["Alabama","AL"],["Alaska","AK"],["Arizona","AZ"],["Arkansas","AR"],["California","CA"],
+    ["Colorado","CO"],["Connecticut","CT"],["Delaware","DE"],["District of Columbia","DC"],
+    ["Florida","FL"],["Georgia","GA"],["Hawaii","HI"],["Idaho","ID"],["Illinois","IL"],
+    ["Indiana","IN"],["Iowa","IA"],["Kansas","KS"],["Kentucky","KY"],["Louisiana","LA"],
+    ["Maine","ME"],["Maryland","MD"],["Massachusetts","MA"],["Michigan","MI"],["Minnesota","MN"],
+    ["Mississippi","MS"],["Missouri","MO"],["Montana","MT"],["Nebraska","NE"],["Nevada","NV"],
+    ["New Hampshire","NH"],["New Jersey","NJ"],["New Mexico","NM"],["New York","NY"],
+    ["North Carolina","NC"],["North Dakota","ND"],["Ohio","OH"],["Oklahoma","OK"],["Oregon","OR"],
+    ["Pennsylvania","PA"],["Rhode Island","RI"],["South Carolina","SC"],["South Dakota","SD"],
+    ["Tennessee","TN"],["Texas","TX"],["Utah","UT"],["Vermont","VT"],["Virginia","VA"],
+    ["Washington","WA"],["West Virginia","WV"],["Wisconsin","WI"],["Wyoming","WY"]
+  ];
+
+  // ---- CONFIG ----
+  // Free Cloudflare Worker that relays Google News RSS requests so the browser
+  // is allowed to read them (Google doesn't allow direct cross-site fetches).
+  // No API key, no billing, no secrets — replace with your own Worker's URL
+  // once you've deployed it.
+  const WORKER_URL = "https://overreach-proxy.kerrycfix.workers.dev";
+
+  const stateSelect = document.getElementById('stateSelect');
+  STATES.forEach(([name, abbr]) => {
+    const opt = document.createElement('option');
+    opt.value = abbr;
+    opt.dataset.name = name;
+    opt.textContent = name;
+    stateSelect.appendChild(opt);
+  });
+
+  let selectedDays = 5;
+  const periodButtons = Array.from(document.querySelectorAll('.period-btn'));
+  periodButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      periodButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      selectedDays = Number(btn.dataset.days);
+      renderEntries();
+    });
+  });
+
+  stateSelect.addEventListener('change', renderEntries);
+
+  function formatPeriod(days){
+    if (days === 365) return '1 year';
+    if (days === 1) return '1 day';
+    return `${days} days`;
+  }
+
+  const scanBtn = document.getElementById('scanBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const statusLine = document.getElementById('statusLine');
+  const entriesEl = document.getElementById('entries');
+  const emptyState = document.getElementById('emptyState');
+  const tallyEl = document.getElementById('tally');
+  const lastScanMeta = document.getElementById('lastScanMeta');
+
+  // log persists across visits via localStorage, keyed by URL to avoid duplicates.
+  // Falls back to in-memory-only if storage isn't available (e.g. inside the
+  // Claude.ai artifact preview, where browser storage APIs are disabled).
+  const STORAGE_KEY = 'overreach-ledger-log-v1';
+  const log = new Map();
+  let storageAvailable = false;
+
+  function loadLog(){
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        JSON.parse(raw).forEach(item => { if (item && item.url) log.set(item.url, item); });
+      }
+      storageAvailable = true;
+    } catch (e) {
+      storageAvailable = false;
+    }
+  }
+
+  function saveLog(){
+    if (!storageAvailable) return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(log.values())));
+    } catch (e) {
+      // quota or access error — fail silently, log still works in-memory
+    }
+  }
+
+  function isWithinWindow(dateStr, days){
+    if (!dateStr) return true;
+    const itemDate = new Date(`${dateStr}T00:00:00`);
+    if (isNaN(itemDate)) return true;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    cutoff.setHours(0, 0, 0, 0);
+    return itemDate >= cutoff;
+  }
+
+  function matchesFilters(item, stateAbbr, days){
+    const stateOk = stateAbbr === 'ALL' || item.state === stateAbbr;
+    return stateOk && isWithinWindow(item.date, days);
+  }
+
+  function renderEntries(){
+    const stateAbbr = stateSelect.value;
+    const days = selectedDays;
+    const all = Array.from(log.values());
+    const items = all
+      .filter(item => matchesFilters(item, stateAbbr, days))
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+    entriesEl.innerHTML = '';
+
+    if (all.length === 0) {
+      emptyState.style.display = 'block';
+      emptyState.querySelector('.big').textContent = 'No entries yet.';
+      emptyState.querySelector('p:last-child').textContent = "Pick a state and a time window on the left, then run a scan. Results land here, newest first, and stay logged so repeat scans build up a running record.";
+    } else if (items.length === 0) {
+      emptyState.style.display = 'block';
+      emptyState.querySelector('.big').textContent = 'Nothing saved matches this filter.';
+      emptyState.querySelector('p:last-child').textContent = "You've logged cases, but none fit this state/time window. Try a wider period, switch to All states, or run a new scan with these filters.";
+    } else {
+      emptyState.style.display = 'none';
+    }
+
+    tallyEl.textContent = items.length === all.length
+      ? `${all.length} case${all.length === 1 ? '' : 's'} logged`
+      : `${items.length} of ${all.length} shown`;
+
+    items.forEach(item => {
+      const card = document.createElement('article');
+      card.className = 'entry';
+
+      const top = document.createElement('div');
+      top.className = 'entry-top';
+
+      const dateTag = document.createElement('span');
+      dateTag.className = 'entry-date';
+      dateTag.textContent = item.date || 'undated';
+
+      const stateTag = document.createElement('span');
+      stateTag.className = 'entry-state';
+      stateTag.textContent = item.state || 'US';
+
+      top.appendChild(dateTag);
+      top.appendChild(stateTag);
+
+      const title = document.createElement('h3');
+      title.className = 'entry-title';
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = item.title;
+      title.appendChild(link);
+
+      const source = document.createElement('div');
+      source.className = 'entry-source';
+      source.textContent = item.source || '';
+
+      card.appendChild(top);
+      card.appendChild(title);
+      card.appendChild(source);
+      entriesEl.appendChild(card);
+    });
+  }
+
+  function periodToWhenToken(days){
+    return days === 365 ? '1y' : `${days}d`;
+  }
+
+  const TOPIC_QUERIES = [
+    '(HOA OR "homeowners association") (fine OR fined OR lawsuit OR complaint OR dispute)',
+    '(zoning OR "code enforcement") (violation OR fine OR fined OR cited OR ticketed)',
+    '(parent OR mother OR father) (arrested OR charged OR cited OR investigated OR convicted OR sentenced OR prosecuted) (unsupervised OR "walked alone" OR "walking alone" OR "walk alone" OR "left alone" OR "free-range")',
+    '"lemonade stand" (shut down OR fine OR fined OR cited OR banned OR permit)',
+    '(child OR kids) (banned OR barred OR "not allowed") (biking OR "riding a bike" OR walking) school',
+    'CPS (investigation OR "child endangerment" OR removed OR custody)'
+  ];
+
+  function buildTopicUrls(stateAbbr, stateName, days){
+    return TOPIC_QUERIES.map(topic => {
+      let q = topic;
+      if (stateName) q += ` "${stateName}"`;
+      q += ` when:${periodToWhenToken(days)}`;
+      const rss = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
+      return `${WORKER_URL}?url=${encodeURIComponent(rss)}`;
+    });
+  }
+
+  function wait(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+  async function fetchWithRetry(url, attempts = 3){
+    let lastError;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) return await res.text();
+        lastError = new Error(`status ${res.status}`);
+      } catch (err) {
+        lastError = err;
+      }
+      if (i < attempts - 1) await wait(600 * (i + 1));
+    }
+    throw lastError;
+  }
+
+  function parseRssItems(xmlText, stateAbbr){
+    const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
+    if (doc.querySelector('parsererror')) return [];
+
+    return Array.from(doc.querySelectorAll('item')).map(item => {
+      const rawTitle = item.querySelector('title')?.textContent?.trim() || '';
+      const link = item.querySelector('link')?.textContent?.trim() || '';
+      const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
+      const sourceTag = item.querySelector('source')?.textContent?.trim();
+
+      let title = rawTitle;
+      let source = sourceTag || '';
+      if (!source) {
+        const dashIdx = rawTitle.lastIndexOf(' - ');
+        if (dashIdx > -1) {
+          title = rawTitle.slice(0, dashIdx);
+          source = rawTitle.slice(dashIdx + 3);
+        }
+      } else if (rawTitle.endsWith(` - ${source}`)) {
+        title = rawTitle.slice(0, rawTitle.length - source.length - 3);
+      }
+
+      let date = '';
+      const parsed = pubDate ? new Date(pubDate) : null;
+      if (parsed && !isNaN(parsed)) date = parsed.toISOString().slice(0, 10);
+
+      return { title, source, date, url: link, state: stateAbbr || 'US' };
+    }).filter(item => item.title && item.url);
+  }
+
+  const NON_US_MARKERS = [
+    'bangladesh','india','pakistan','china','nigeria','kenya','philippines','indonesia',
+    'united kingdom',' uk ',' u.k.','england','scotland','wales','ireland','australia',
+    'canada','mexico','brazil','france','germany','italy','spain','russia','ukraine',
+    'japan','south korea','vietnam','thailand','malaysia','singapore','egypt','south africa',
+    'sangbad','xinhua',' afp ',' pti ',' ani ','times of india','dawn.com','the hindu'
+  ];
+
+  function looksNonUS(item){
+    const haystack = ` ${item.title.toLowerCase()} ${(item.source || '').toLowerCase()} `;
+    return NON_US_MARKERS.some(marker => haystack.includes(marker));
+  }
+
+  async function runScan(){
+    const stateAbbr = stateSelect.value;
+    const stateName = stateSelect.options[stateSelect.selectedIndex]?.dataset.name || '';
+    const days = selectedDays;
+
+    if (!WORKER_URL || WORKER_URL === 'PASTE_YOUR_WORKER_URL_HERE') {
+      statusLine.classList.add('error');
+      statusLine.textContent = "No Worker URL is set yet — edit WORKER_URL near the top of the script first.";
+      return;
+    }
+
+    scanBtn.disabled = true;
+    scanBtn.textContent = 'Scanning…';
+    statusLine.classList.remove('error');
+    statusLine.textContent = `Searching Google News from the last ${formatPeriod(days)}${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}…`;
+
+    try {
+      const urls = buildTopicUrls(stateAbbr === 'ALL' ? '' : stateAbbr, stateAbbr === 'ALL' ? '' : stateName, days);
+      const merged = new Map();
+      let succeededCount = 0;
+
+      for (let i = 0; i < urls.length; i++) {
+        statusLine.textContent = `Searching topic ${i + 1} of ${urls.length}${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}…`;
+        try {
+          const xmlText = await fetchWithRetry(urls[i]);
+          succeededCount++;
+          parseRssItems(xmlText, stateAbbr === 'ALL' ? 'US' : stateAbbr).forEach(item => {
+            if (!looksNonUS(item) && !merged.has(item.url)) merged.set(item.url, item);
+          });
+        } catch (e) {
+          // one topic failing shouldn't stop the rest — just move on
+        }
+        if (i < urls.length - 1) await wait(350);
+      }
+
+      if (succeededCount === 0) {
+        throw new Error('All searches failed — Google News may be temporarily rate-limiting. Try again in a moment.');
+      }
+
+      const items = Array.from(merged.values()).slice(0, 60);
+
+      let added = 0;
+      items.forEach(item => {
+        if (!log.has(item.url)) added++;
+        log.set(item.url, item);
+      });
+
+      renderEntries();
+      saveLog();
+
+      const now = new Date();
+      lastScanMeta.textContent = `last scan: ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+      statusLine.textContent = items.length === 0
+        ? `No qualifying stories turned up for this window${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}. Try a wider time period.`
+        : `Scan complete — ${items.length} found, ${added} new.${succeededCount < urls.length ? ` (${urls.length - succeededCount} of ${urls.length} topic searches were rate-limited — try again for more.)` : ''}`;
+
+    } catch (err) {
+      statusLine.classList.add('error');
+      statusLine.textContent = `Scan failed: ${err.message}. Check your connection and try again.`;
+    } finally {
+      scanBtn.disabled = false;
+      scanBtn.textContent = 'Run scan';
+    }
+  }
+
+  scanBtn.addEventListener('click', runScan);
+
+  clearBtn.addEventListener('click', () => {
+    log.clear();
+    renderEntries();
+    saveLog();
+    statusLine.textContent = 'Log cleared.';
+    statusLine.classList.remove('error');
+  });
+
+  loadLog();
+  renderEntries();
+  if (log.size) {
+    statusLine.textContent = `Loaded ${log.size} saved ${log.size === 1 ? 'case' : 'cases'} from your last visit.`;
+  } else if (!storageAvailable) {
+    statusLine.textContent = "Heads up: this preview doesn't support saving between visits — once you host the page yourself, your log will persist.";
+  }
+</script>
+</body>
+</html>
