@@ -8,22 +8,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0D0F14;
-    --surface: #161922;
-    --surface-2: #1E222E;
-    --border: #2A2F3D;
-    --text: #EEF0F5;
-    --text-soft: #8B91A5;
-    --text-faint: #5D6377;
-    --accent: #F0A83C;
-    --accent-dark: #D6902C;
-    --accent-soft: rgba(240,168,60,0.13);
-    --accent-ink: #1B1404;
-    --teal: #3FD9BB;
-    --teal-soft: rgba(63,217,187,0.12);
-    --danger: #F0605F;
-    --danger-soft: rgba(240,96,95,0.12);
-    --focus: #7AAEFF;
+    --bg: #F6F7FA;
+    --surface: #FFFFFF;
+    --surface-2: #EEF0F5;
+    --border: #E1E3EA;
+    --text: #14171F;
+    --text-soft: #565B6D;
+    --text-faint: #8A8FA0;
+    --primary: #2743C7;
+    --primary-dark: #1E35A6;
+    --primary-soft: rgba(39,67,199,0.08);
+    --primary-ink: #FFFFFF;
+    --teal: #0E7C74;
+    --teal-soft: rgba(14,124,116,0.08);
+    --amber: #B4690E;
+    --amber-soft: rgba(180,105,14,0.10);
+    --danger: #C4342F;
+    --danger-soft: rgba(196,52,47,0.08);
+    --focus: #2743C7;
+    --shadow-sm: 0 1px 2px rgba(20,23,31,0.05), 0 1px 3px rgba(20,23,31,0.04);
+    --shadow-md: 0 6px 16px rgba(20,23,31,0.08), 0 2px 4px rgba(20,23,31,0.05);
   }
 
   * { box-sizing: border-box; }
@@ -36,8 +40,8 @@
     min-height: 100vh;
   }
 
-  a { color: var(--teal); }
-  a:hover { color: var(--accent); }
+  a { color: var(--primary); }
+  a:hover { color: var(--primary-dark); }
 
   :focus-visible {
     outline: 2px solid var(--focus);
@@ -108,6 +112,7 @@
     padding: 22px;
     position: sticky;
     top: 24px;
+    box-shadow: var(--shadow-sm);
   }
   @media (max-width: 780px){ .drawer{ position: static; } }
 
@@ -134,7 +139,7 @@
     padding: 11px 34px 11px 12px;
     font-family: 'Inter', sans-serif;
     font-size: 0.92rem;
-    background: var(--surface-2);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 9px;
     color: var(--text);
@@ -144,9 +149,10 @@
     background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
     cursor: pointer;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
   select#stateSelect:hover{ border-color: var(--text-faint); }
+  select#stateSelect:focus{ border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); outline: none; }
 
   .period-row{
     display: grid;
@@ -168,11 +174,12 @@
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
-  .period-btn:hover{ color: var(--text); background: rgba(255,255,255,0.04); }
+  .period-btn:hover{ color: var(--text); background: rgba(20,23,31,0.04); }
   .period-btn[aria-pressed="true"]{
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: var(--primary);
+    color: var(--primary-ink);
     font-weight: 600;
+    box-shadow: var(--shadow-sm);
   }
 
   .scan-btn{
@@ -181,17 +188,18 @@
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
     font-size: 1rem;
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: var(--primary);
+    color: var(--primary-ink);
     border: none;
     border-radius: 9px;
     cursor: pointer;
     letter-spacing: -0.01em;
-    transition: background 0.15s ease, transform 0.1s ease;
+    box-shadow: var(--shadow-sm);
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
   }
-  .scan-btn:hover:not(:disabled){ background: var(--accent-dark); }
+  .scan-btn:hover:not(:disabled){ background: var(--primary-dark); box-shadow: var(--shadow-md); }
   .scan-btn:active:not(:disabled){ transform: translateY(1px); }
-  .scan-btn:disabled{ background: var(--surface-2); color: var(--text-faint); cursor: default; }
+  .scan-btn:disabled{ background: var(--surface-2); color: var(--text-faint); cursor: default; box-shadow: none; }
 
   .drawer-foot{
     margin-top: 18px;
@@ -268,12 +276,13 @@
   .entry{
     background: var(--surface);
     border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
+    border-left: 3px solid var(--primary);
     border-radius: 12px;
     padding: 18px 20px;
-    transition: border-color 0.15s ease, transform 0.1s ease;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .entry:hover{ border-color: var(--text-faint); }
+  .entry:hover{ box-shadow: var(--shadow-md); border-color: var(--text-faint); }
   .entry-top{
     display: flex;
     justify-content: space-between;
@@ -294,8 +303,8 @@
   .entry-state{
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
-    color: var(--accent);
-    background: var(--accent-soft);
+    color: var(--amber);
+    background: var(--amber-soft);
     padding: 3px 9px;
     border-radius: 999px;
     white-space: nowrap;
@@ -309,7 +318,7 @@
     color: var(--text);
   }
   .entry-title a{ color: var(--text); text-decoration: none; }
-  .entry-title a:hover{ color: var(--accent); text-decoration: underline; }
+  .entry-title a:hover{ color: var(--primary); text-decoration: underline; }
   .entry-source{
     font-size: 0.84rem;
     color: var(--text-faint);
@@ -608,8 +617,16 @@
   }
 
   function parseRssItems(xmlText, stateAbbr){
+    if (/systems have detected unusual traffic|detected unusual traffic from your computer/i.test(xmlText)) {
+      const err = new Error('Google is temporarily blocking automated requests from this proxy.');
+      err.blocked = true;
+      throw err;
+    }
+
     const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
-    if (doc.querySelector('parsererror')) return [];
+    if (doc.querySelector('parsererror')) {
+      throw new Error('Received an unexpected response instead of search results.');
+    }
 
     return Array.from(doc.querySelectorAll('item')).map(item => {
       const rawTitle = item.querySelector('title')?.textContent?.trim() || '';
@@ -671,24 +688,28 @@
       const urls = shuffledTopics.map(topic => buildTopicUrl(topic, stateAbbr === 'ALL' ? '' : stateAbbr, stateAbbr === 'ALL' ? '' : stateName, days));
       const merged = new Map();
       let succeededCount = 0;
+      let blockedCount = 0;
       const PER_TOPIC_CAP = 8;
 
       for (let i = 0; i < urls.length; i++) {
         statusLine.textContent = `Searching topic ${i + 1} of ${urls.length}${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}…`;
         try {
           const xmlText = await fetchWithRetry(urls[i]);
-          succeededCount++;
           const topicItems = parseRssItems(xmlText, stateAbbr === 'ALL' ? 'US' : stateAbbr).filter(item => !looksNonUS(item));
+          succeededCount++;
           topicItems.slice(0, PER_TOPIC_CAP).forEach(item => {
             if (!merged.has(item.url)) merged.set(item.url, item);
           });
         } catch (e) {
-          // one topic failing shouldn't stop the rest — just move on
+          if (e.blocked) blockedCount++;
         }
         if (i < urls.length - 1) await wait(900);
       }
 
       if (succeededCount === 0) {
+        if (blockedCount > 0) {
+          throw new Error("Google is temporarily blocking this page's proxy after heavy use — this usually clears up within an hour or so. Try again later.");
+        }
         throw new Error('All searches failed — Google News may be temporarily rate-limiting. Try again in a moment.');
       }
 
