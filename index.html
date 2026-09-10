@@ -559,14 +559,12 @@
     'CPS (investigation OR "child endangerment" OR removed OR custody)'
   ];
 
-  function buildTopicUrls(stateAbbr, stateName, days){
-    return TOPIC_QUERIES.map(topic => {
-      let q = topic;
-      if (stateName) q += ` "${stateName}"`;
-      q += ` when:${periodToWhenToken(days)}`;
-      const rss = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
-      return `${WORKER_URL}?url=${encodeURIComponent(rss)}`;
-    });
+  function buildTopicUrl(topic, stateAbbr, stateName, days){
+    let q = topic;
+    if (stateName) q += ` "${stateName}"`;
+    q += ` when:${periodToWhenToken(days)}`;
+    const rss = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
+    return `${WORKER_URL}?url=${encodeURIComponent(rss)}`;
   }
 
   function wait(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -646,22 +644,25 @@
     statusLine.textContent = `Searching Google News from the last ${formatPeriod(days)}${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}…`;
 
     try {
-      const urls = buildTopicUrls(stateAbbr === 'ALL' ? '' : stateAbbr, stateAbbr === 'ALL' ? '' : stateName, days);
+      const shuffledTopics = [...TOPIC_QUERIES].sort(() => Math.random() - 0.5);
+      const urls = shuffledTopics.map(topic => buildTopicUrl(topic, stateAbbr === 'ALL' ? '' : stateAbbr, stateAbbr === 'ALL' ? '' : stateName, days));
       const merged = new Map();
       let succeededCount = 0;
+      const PER_TOPIC_CAP = 8;
 
       for (let i = 0; i < urls.length; i++) {
         statusLine.textContent = `Searching topic ${i + 1} of ${urls.length}${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}…`;
         try {
           const xmlText = await fetchWithRetry(urls[i]);
           succeededCount++;
-          parseRssItems(xmlText, stateAbbr === 'ALL' ? 'US' : stateAbbr).forEach(item => {
-            if (!looksNonUS(item) && !merged.has(item.url)) merged.set(item.url, item);
+          const topicItems = parseRssItems(xmlText, stateAbbr === 'ALL' ? 'US' : stateAbbr).filter(item => !looksNonUS(item));
+          topicItems.slice(0, PER_TOPIC_CAP).forEach(item => {
+            if (!merged.has(item.url)) merged.set(item.url, item);
           });
         } catch (e) {
           // one topic failing shouldn't stop the rest — just move on
         }
-        if (i < urls.length - 1) await wait(350);
+        if (i < urls.length - 1) await wait(900);
       }
 
       if (succeededCount === 0) {
