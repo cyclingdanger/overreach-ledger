@@ -408,7 +408,7 @@
   </div>
 
   <footer class="note">
-    Results come straight from Bing News search, filtered to your state and time window — this page doesn't use any paid API and doesn't invent stories. Headlines are matched by keyword, not read for meaning, so occasional off-target results are normal; skim before treating anything as a confirmed case. Bing News's free search leans toward recent, prominent coverage rather than acting as a complete historical archive, so even a "1 year" scan will mostly surface currently-findable stories, not every matching story ever published — treat the count as "what's findable right now," not a census. Very recent windows (like 1 day) sometimes return little for the same reason. State tags are read from each headline's text, so a story only shows up under a specific state if that state's name appears in the headline itself — stories that don't name a state stay tagged "US" even if they're about a specific place. Your log is saved in this browser once the page is hosted on its own; it won't carry over to a different browser or device.
+    Results come straight from Bing News search, filtered to your state and time window — this page doesn't use any paid API and doesn't invent stories. Headlines are matched by keyword, not read for meaning, so occasional off-target results are normal; skim before treating anything as a confirmed case. Bing's free search only returns a small batch of matches per search and has no true date-range filter, so in practice "1 year" and "30 days" often look similar — you're seeing what's currently findable, not a genuine year-long archive. State tags are read from each headline's text, so a story only shows up under a specific state if that state's name appears in the headline itself — stories that don't name a state stay tagged "US" even if they're about a specific place. Your log is saved in this browser once the page is hosted on its own; it won't carry over to a different browser or device.
   </footer>
 
 </div>
@@ -594,7 +594,7 @@
   function buildTopicUrl(topic, stateAbbr, stateName, days){
     let q = topic;
     if (stateName) q += ` "${stateName}"`;
-    const rss = `https://www.bing.com/news/search?q=${encodeURIComponent(q)}&format=rss&setmkt=en-US&qft=sortbydate%3d%221%22`;
+    const rss = `https://www.bing.com/news/search?q=${encodeURIComponent(q)}&format=rss&setmkt=en-US`;
     return `${WORKER_URL}?url=${encodeURIComponent(rss)}`;
   }
 
@@ -732,7 +732,7 @@
       const merged = new Map();
       let succeededCount = 0;
       let blockedCount = 0;
-      const PER_TOPIC_CAP = 8;
+      const PER_TOPIC_CAP = days >= 30 ? 20 : 8;
 
       for (let i = 0; i < urls.length; i++) {
         statusLine.textContent = `Searching topic ${i + 1} of ${urls.length}${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}…`;
