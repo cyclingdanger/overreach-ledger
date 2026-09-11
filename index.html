@@ -615,9 +615,45 @@
     throw lastError;
   }
 
+  // Cities whose names don't already contain their state's name — headlines
+  // usually name the city, not the state, so this catches what the plain
+  // state-name check above misses. Deliberately skips genuinely ambiguous
+  // names shared across states/countries (Ontario/Vancouver collide with
+  // Canadian places; Hollywood usually means the industry, not the FL city).
+  const CITY_TO_STATE = {
+    "Williamsburg": "VA", "Los Angeles": "CA", "San Francisco": "CA", "San Diego": "CA",
+    "Sacramento": "CA", "Houston": "TX", "Dallas": "TX", "Austin": "TX", "San Antonio": "TX",
+    "Fort Worth": "TX", "Chicago": "IL", "Phoenix": "AZ", "Philadelphia": "PA", "Pittsburgh": "PA",
+    "Columbus": "OH", "Cleveland": "OH", "Cincinnati": "OH", "Charlotte": "NC", "Raleigh": "NC",
+    "Detroit": "MI", "Seattle": "WA", "Denver": "CO", "Boston": "MA", "Atlanta": "GA",
+    "Miami": "FL", "Orlando": "FL", "Tampa": "FL", "Jacksonville": "FL", "Nashville": "TN",
+    "Memphis": "TN", "Baltimore": "MD", "Milwaukee": "WI", "Portland": "OR", "Las Vegas": "NV",
+    "Louisville": "KY", "Oklahoma City": "OK", "Albuquerque": "NM", "Tucson": "AZ", "Fresno": "CA",
+    "Kansas City": "MO", "Mesa": "AZ", "Omaha": "NE", "Colorado Springs": "CO", "Long Beach": "CA",
+    "Oakland": "CA", "Minneapolis": "MN", "Tulsa": "OK", "New Orleans": "LA", "Wichita": "KS",
+    "Bakersfield": "CA", "Honolulu": "HI", "Anaheim": "CA", "Riverside": "CA",
+    "Corpus Christi": "TX", "Lexington": "KY", "Stockton": "CA", "Henderson": "NV",
+    "St. Louis": "MO", "Greensboro": "NC", "Anchorage": "AK", "Plano": "TX", "Lincoln": "NE",
+    "Irvine": "CA", "Newark": "NJ", "Toledo": "OH", "Durham": "NC", "Fort Wayne": "IN",
+    "Jersey City": "NJ", "St. Petersburg": "FL", "Laredo": "TX", "Madison": "WI",
+    "Chandler": "AZ", "Buffalo": "NY", "Lubbock": "TX", "Scottsdale": "AZ", "Reno": "NV",
+    "Glendale": "AZ", "Norfolk": "VA", "Winston-Salem": "NC", "Chesapeake": "VA",
+    "Richmond": "VA", "San Bernardino": "CA", "Baton Rouge": "LA", "Spokane": "WA",
+    "Des Moines": "IA", "Tacoma": "WA", "Little Rock": "AR", "Akron": "OH", "Amarillo": "TX",
+    "Montgomery": "AL", "Birmingham": "AL", "Grand Rapids": "MI", "Salt Lake City": "UT",
+    "Tallahassee": "FL", "Huntsville": "AL", "Knoxville": "TN", "Worcester": "MA",
+    "Newport News": "VA", "Brownsville": "TX", "Providence": "RI", "Chattanooga": "TN",
+    "Jackson": "MS", "Fort Lauderdale": "FL", "Alexandria": "VA", "Savannah": "GA",
+  };
+  const CITY_ENTRIES = Object.entries(CITY_TO_STATE).sort((a, b) => b[0].length - a[0].length);
+
   function detectStateFromTitle(title, fallbackAbbr){
     for (const [name, abbr] of STATES) {
       const re = new RegExp(`\\b${name}\\b`, 'i');
+      if (re.test(title)) return abbr;
+    }
+    for (const [city, abbr] of CITY_ENTRIES) {
+      const re = new RegExp(`\\b${city}\\b`, 'i');
       if (re.test(title)) return abbr;
     }
     return fallbackAbbr;
