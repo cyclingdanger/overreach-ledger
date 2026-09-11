@@ -592,18 +592,23 @@
     'CPS investigation unsupervised',
     'free-range parenting charged',
     'mother guilty child neglect',
-    'dad arrested child walk'
+    'dad arrested child walk',
+    'noise ordinance neighbor arrested',
+    'home business cited zoning',
+    'playground banned closed',
+    'feeding homeless banned arrested',
+    'garage sale bake sale cited fine'
   ];
 
   function looksLikeOverreachStory(item){
     const t = item.title.toLowerCase();
 
-    const hasParentOrChildWord = /\b(hoa|homeowners association|zoning|code enforcement|parent|parents|mother|mom|moms|father|dad|dads|child|children|kid|kids|cps|free-range|lemonade stand|unsupervised|bicycle|bike)\b/.test(t);
+    const hasThemeWord = /\b(hoa|homeowners association|zoning|code enforcement|parent|parents|mother|mom|moms|father|dad|dads|child|children|kid|kids|cps|free-range|lemonade stand|unsupervised|bicycle|bike|noise|playground|homeless|business|garage sale|bake sale|library)\b/.test(t);
     const hasWalkAloneConcept = /\bwalk\w*\b/.test(t) && /\balone\b/.test(t);
     const hasBikeToSchool = /\bbike\b/.test(t) && /\bschool\b/.test(t);
-    if (!hasParentOrChildWord && !hasWalkAloneConcept && !hasBikeToSchool) return false;
+    if (!hasThemeWord && !hasWalkAloneConcept && !hasBikeToSchool) return false;
 
-    const enforcementWords = /\b(cit\w*|fine|fines|fined|fining|charge\w*|arrest\w*|ban\w*|convict\w*|sentenc\w*|violation\w*|ordinance\w*|penalt\w*|injunction\w*|lawsuit\w*|sued|prosecut\w*|suspend\w*|expell\w*|investigat\w*|custody|shut down|permit\w*|guilty|neglect\w*|abuse\w*)\b/;
+    const enforcementWords = /\b(cit\w*|fine|fines|fined|fining|charge\w*|arrest\w*|ban\w*|convict\w*|sentenc\w*|violation\w*|ordinance\w*|penalt\w*|injunction\w*|lawsuit\w*|sued|prosecut\w*|suspend\w*|expell\w*|investigat\w*|custody|shut down|permit\w*|guilty|neglect\w*|abuse\w*|close|closes|closed|closing)\b/;
     return enforcementWords.test(t);
   }
 
