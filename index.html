@@ -583,22 +583,27 @@
   }
 
   const TOPIC_QUERIES = [
-    'mother arrested son walking alone',
-    'father charged letting child walk alone',
+    'mom convicted walk alone',
+    'mom arrested unsupervised child',
     'HOA fines homeowner',
-    'zoning violation cited backyard',
-    'lemonade stand shut down permit',
-    'child banned riding bike to school',
-    'CPS investigation unsupervised child',
-    'parent convicted free-range parenting'
+    'zoning violation cited',
+    'lemonade stand shut down',
+    'child banned bike school',
+    'CPS investigation unsupervised',
+    'free-range parenting charged',
+    'mother guilty child neglect',
+    'dad arrested child walk'
   ];
 
   function looksLikeOverreachStory(item){
     const t = item.title.toLowerCase();
-    const themeWords = /\b(hoa|homeowners association|zoning|code enforcement|parent|mother|father|child|kids|cps|free-range|lemonade stand|walk\w* alone|unsupervised|bike to school|bike to campus|riding (his |her |a )?bike|bicycle)\b/;
-    if (!themeWords.test(t)) return false;
 
-    const enforcementWords = /\b(cit\w*|fine|fines|fined|fining|charge\w*|arrest\w*|ban\w*|convict\w*|sentenc\w*|violation\w*|ordinance\w*|penalt\w*|injunction\w*|lawsuit\w*|sued|prosecut\w*|suspend\w*|expell\w*|investigat\w*|custody|shut down|permit\w*)\b/;
+    const hasParentOrChildWord = /\b(hoa|homeowners association|zoning|code enforcement|parent|parents|mother|mom|moms|father|dad|dads|child|children|kid|kids|cps|free-range|lemonade stand|unsupervised|bicycle|bike)\b/.test(t);
+    const hasWalkAloneConcept = /\bwalk\w*\b/.test(t) && /\balone\b/.test(t);
+    const hasBikeToSchool = /\bbike\b/.test(t) && /\bschool\b/.test(t);
+    if (!hasParentOrChildWord && !hasWalkAloneConcept && !hasBikeToSchool) return false;
+
+    const enforcementWords = /\b(cit\w*|fine|fines|fined|fining|charge\w*|arrest\w*|ban\w*|convict\w*|sentenc\w*|violation\w*|ordinance\w*|penalt\w*|injunction\w*|lawsuit\w*|sued|prosecut\w*|suspend\w*|expell\w*|investigat\w*|custody|shut down|permit\w*|guilty|neglect\w*|abuse\w*)\b/;
     return enforcementWords.test(t);
   }
 
