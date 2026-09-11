@@ -584,31 +584,32 @@
 
   const TOPIC_QUERIES = [
     'mom convicted walk alone',
-    'mom arrested unsupervised child',
-    'HOA fines homeowner',
-    'zoning violation cited',
-    'lemonade stand shut down',
     'child banned bike school',
-    'CPS investigation unsupervised',
-    'free-range parenting charged',
-    'mother guilty child neglect',
-    'dad arrested child walk',
-    'noise ordinance neighbor arrested',
-    'home business cited zoning',
-    'playground banned closed',
-    'feeding homeless banned arrested',
-    'garage sale bake sale cited fine'
+    'lemonade stand shut down',
+    'garage sale bake sale cited fine',
+    'HOA fined homeowner absurd',
+    'man arrested feeding ducks',
+    'woman cited watering neighbor lawn',
+    'fined flying flag HOA',
+    'cited holiday decorations too long',
+    'banned collecting rainwater',
+    'fined vegetable garden front yard',
+    'man cited loud music low volume',
+    'cited selling baked goods home',
+    'arrested feeding stray cats',
+    'HOA fined mailbox color',
+    'fined backyard chickens'
   ];
 
   function looksLikeOverreachStory(item){
     const t = item.title.toLowerCase();
 
-    const hasThemeWord = /\b(hoa|homeowners association|zoning|code enforcement|parent|parents|mother|mom|moms|father|dad|dads|child|children|kid|kids|cps|free-range|lemonade stand|unsupervised|bicycle|bike|noise|playground|homeless|business|garage sale|bake sale|library)\b/.test(t);
+    const hasThemeWord = /\b(hoa|homeowners association|zoning|code enforcement|parent|parents|mother|mom|moms|father|dad|dads|child|children|kid|kids|cps|free-range|lemonade stand|unsupervised|bicycle|bike|playground|garage sale|bake sale|mailbox|duck|ducks|flag|decoration|decorations|christmas lights|holiday lights|rainwater|garden|vegetable|tomato|tomatoes|yard|music|volume|cat|cats|stray|baked goods|cookie|cookies|baker|bakery|baking|baked|watering|lawn|driveway|solar|chalk|chicken|chickens|coop|clothesline|\bRV\b)\b/.test(t);
     const hasWalkAloneConcept = /\bwalk\w*\b/.test(t) && /\balone\b/.test(t);
     const hasBikeToSchool = /\bbike\b/.test(t) && /\bschool\b/.test(t);
     if (!hasThemeWord && !hasWalkAloneConcept && !hasBikeToSchool) return false;
 
-    const enforcementWords = /\b(cit\w*|fine|fines|fined|fining|charge\w*|arrest\w*|ban\w*|convict\w*|sentenc\w*|violation\w*|ordinance\w*|penalt\w*|injunction\w*|lawsuit\w*|sued|prosecut\w*|suspend\w*|expell\w*|investigat\w*|custody|shut down|permit\w*|guilty|neglect\w*|abuse\w*|close|closes|closed|closing)\b/;
+    const enforcementWords = /\b(cit\w*|fine|fines|fined|fining|charge\w*|arrest\w*|ban\w*|convict\w*|sentenc\w*|violation\w*|ordinance\w*|penalt\w*|injunction\w*|lawsuit\w*|sue|sues|sued|suing|prosecut\w*|suspend\w*|expell\w*|investigat\w*|custody|shut down|permit\w*|guilty|neglect\w*|abuse\w*|close|closes|closed|closing|call\w* police|police call\w*|called police)\b/;
     return enforcementWords.test(t);
   }
 
