@@ -583,13 +583,24 @@
   }
 
   const TOPIC_QUERIES = [
-    '(HOA OR "homeowners association") (fine OR fined OR lawsuit OR complaint OR dispute)',
-    '(zoning OR "code enforcement") (violation OR fine OR fined OR cited OR ticketed)',
-    '(parent OR mother OR father) (arrested OR charged OR cited OR investigated OR convicted OR sentenced OR prosecuted) (unsupervised OR "walked alone" OR "walking alone" OR "walk alone" OR "left alone" OR "free-range")',
-    '"lemonade stand" (shut down OR fine OR fined OR cited OR banned OR permit)',
-    '(child OR kids) (banned OR barred OR "not allowed") (biking OR "riding a bike" OR walking) school',
-    'CPS (investigation OR "child endangerment" OR removed OR custody)'
+    'mother arrested son walking alone',
+    'father charged letting child walk alone',
+    'HOA fines homeowner',
+    'zoning violation cited backyard',
+    'lemonade stand shut down permit',
+    'child banned riding bike to school',
+    'CPS investigation unsupervised child',
+    'parent convicted free-range parenting'
   ];
+
+  function looksLikeOverreachStory(item){
+    const t = item.title.toLowerCase();
+    const themeWords = /\b(hoa|homeowners association|zoning|code enforcement|parent|mother|father|child|kids|cps|free-range|lemonade stand|walk\w* alone|unsupervised|bike to school|bike to campus|riding (his |her |a )?bike|bicycle)\b/;
+    if (!themeWords.test(t)) return false;
+
+    const enforcementWords = /\b(cit\w*|fine|fines|fined|fining|charge\w*|arrest\w*|ban\w*|convict\w*|sentenc\w*|violation\w*|ordinance\w*|penalt\w*|injunction\w*|lawsuit\w*|sued|prosecut\w*|suspend\w*|expell\w*|investigat\w*|custody|shut down|permit\w*)\b/;
+    return enforcementWords.test(t);
+  }
 
   function buildTopicUrl(topic, stateAbbr, stateName, days){
     let q = topic;
@@ -738,7 +749,7 @@
         statusLine.textContent = `Searching topic ${i + 1} of ${urls.length}${stateAbbr === 'ALL' ? '' : ` in ${stateName}`}…`;
         try {
           const xmlText = await fetchWithRetry(urls[i]);
-          const topicItems = parseRssItems(xmlText, stateAbbr === 'ALL' ? 'US' : stateAbbr).filter(item => !looksNonUS(item));
+          const topicItems = parseRssItems(xmlText, stateAbbr === 'ALL' ? 'US' : stateAbbr).filter(item => !looksNonUS(item) && looksLikeOverreachStory(item));
           succeededCount++;
           topicItems.slice(0, PER_TOPIC_CAP).forEach(item => {
             if (!merged.has(item.url)) merged.set(item.url, item);
